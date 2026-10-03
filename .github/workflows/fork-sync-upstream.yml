@@ -1,0 +1,141 @@
+# 放在你自己 Fork 的 .github/workflows/fork-sync-upstream.yml
+# 作用：用带 workflow 权限的 PAT 把 Fork 的 main 自动同步到上游 MarSeventh/CloudFlare-ImgBed。
+#
+# 为什么不用上游自带的 sync-upstream.yml：
+#   上游那个文件用仓库自带的 GITHUB_TOKEN，而 GITHUB_TOKEN 不允许修改 .github/workflows/ 下的文件，
+#   所以上游一改 workflow 就会同步失败（你 7/29 开始遇到的正是这个问题）。
+#   本文件用 PAT，并且文件名是上游不存在的，永远不会被同步覆盖，也不会产生冲突。
+#
+# 同步方式：git merge upstream/main
+#   - 上游的更新会合并进来；本仓库自己的文件（比如本文件）会被保留
+#   - 合并成功并 push 后，Cloudflare 的 Git 集成会自动构建部署
+#
+# 需要的 Secret：
+#   SYNC_PAT - 带 workflow 权限的 PAT（classic: repo + workflow；fine-grained: Contents + Workflows = Read and write）
+name: Fork Sync Upstream
+
+on:
+  schedule:
+    - cron: "30 5,11,17,23 * * *" # 每 6 小时一次，刻意排在上游 00:00 那次的附近
+  workflow_dispatch:
+    inputs:
+      confirm_breaking_update:
+        description: "我已阅读兼容性更新公告并同意应用 / I have reviewed the compatibility notice and agree to apply it"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+concurrency:
+  group: fork-sync-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync fork main from upstream
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }}
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      # 复用上游随代码同步过来的保护脚本：遇到需要人工确认的破坏性更新会暂停并开 Issue
+      - name: Check breaking update policy
+        id: breaking_guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTREAM_REPO: MarSeventh/CloudFlare-ImgBed
+          UPSTREAM_BRANCH: main
+          ALLOW_BREAKING_UPDATE: ${{ github.event_name == 'workflow_dispatch' && inputs.confirm_breaking_update == true }}
+        run: bash .github/breaking-updates/scripts/breaking-update-guard.sh check
+
+      - name: Sync upstream changes
+        id: sync
+        if: steps.breaking_guard.outputs.blocked != 'true'
+        env:
+          SYNC_PAT: ${{ secrets.SYNC_PAT }}
+          UPSTREAM_REPO: MarSeventh/CloudFlare-ImgBed
+        run: |
+          set -euo pipefail
+          if [ -z "${SYNC_PAT:-}" ]; then
+            echo "::error::未配置 SYNC_PAT secret，无法同步。"
+            echo "::error::请在本仓库 Settings → Secrets and variables → Actions 中添加 SYNC_PAT（需带 workflow 权限的 PAT）。"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch --no-tags --prune upstream main
+
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Fork 已包含上游最新代码，无需同步。"
+            exit 0
+          fi
+
+          echo "上游有新提交，开始合并：$(git rev-parse --short upstream/main)"
+          if ! git merge --no-edit upstream/main; then
+            echo "::error::与上游合并时产生冲突，需要人工处理。"
+            echo "::error::请检查上面的冲突文件，解决后手动 push，或考虑重置本仓库 main 后重试。"
+            exit 1
+          fi
+
+          # 用 PAT 推送：带 workflow 权限，且能正常触发 on: push 的其它 workflow / Cloudflare 构建
+          git remote set-url origin "https://x-access-token:${SYNC_PAT}@github.com/${GITHUB_REPOSITORY}.git"
+          git push origin HEAD:main
+          echo "已同步到 $(git rev-parse --short HEAD)"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Complete breaking update notices
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/breaking-updates/scripts/breaking-update-guard.sh complete
+
+      # 如果仓库配置了 CLOUDFLARE_API_TOKEN，说明走 GitHub Actions 部署；
+      # 此时若 push 没能触发 deploy-worker.yml，就手动补一次派发。
+      # 若未配置（由 Cloudflare Git 集成部署），这一步会静默跳过。
+      - name: Ensure worker deploy is dispatched
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "未配置 CLOUDFLARE_API_TOKEN，部署交由 Cloudflare Git 集成处理，跳过派发。"
+            exit 0
+          fi
+          sleep 20
+          count="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy-worker.yml --limit 10 \
+            --json createdAt --jq '[.[] | select((now - (.createdAt | fromdateiso8601)) < 300)] | length')"
+          if [ "${count:-0}" -eq 0 ]; then
+            echo "未检测到 push 触发的部署，手动派发 deploy-worker.yml"
+            gh workflow run deploy-worker.yml --repo "$GITHUB_REPOSITORY" --ref main
+          else
+            echo "push 已触发部署（最近 5 分钟 $count 个任务），跳过派发。"
+          fi
+
+      - name: Sync failure guidance
+        if: failure()
+        run: |
+          {
+            echo "## ⚠️ 上游同步未完成 / Upstream synchronization did not complete"
+            echo
+            echo "常见原因："
+            echo "- SYNC_PAT 未配置或已过期 / 缺少 workflow 权限"
+            echo "- 与上游产生合并冲突（本仓库 main 有被上游改动过的本地修改）"
+            echo "- 上游标记了需要人工确认的兼容性更新（请看上方步骤与 Issue 通知）"
+            echo
+            echo "Common causes: missing/expired SYNC_PAT, merge conflicts with upstream, or a breaking update awaiting confirmation."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
