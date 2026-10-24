@@ -8,7 +8,7 @@
     </a>
     <p><em>🗂️ Beyond image hosting: an all-in-one, open-source file management hub.</em></p>
     <p>
-        <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README_zh.md">简体中文</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README.md">English</a> &nbsp;·&nbsp; <a href="https://cfbed.sanyue.de/en">Official Website</a> &nbsp;·&nbsp; <a href="https://t.me/sanyue_club">Telegram Channel</a>
+        <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README_zh.md">简体中文</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README.md">English</a> &nbsp;·&nbsp; <a href="https://cfbed.sanyue.de/en">Official Website</a> &nbsp;·&nbsp; <a href="https://t.me/sanyue_club">Telegram Channel</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/discussions/categories/announcements">Announcements</a>
     </p>
     <p align="center">
         <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MarSeventh/CloudFlare-ImgBed" alt="License" /></a>
@@ -27,62 +27,50 @@
 
 ---
 
-> [!IMPORTANT]
->
-> **If you encounter issues, please check the [announcements](https://github.com/MarSeventh/CloudFlare-ImgBed/discussions/categories/announcements) and [Telegram channel](https://t.me/sanyue_club) first. Important notices and breaking changes will be explained in the announcements!**
-
-
 # 1. 💡 Introduction
 
 CloudFlare ImgBed is a self-hosted image and file hosting solution for Docker and serverless environments, bringing **Telegram**, **Discord**, **Cloudflare R2**, **S3-compatible storage**, **Hugging Face**, **WebDAV**, and more into one management interface. It provides file management, authentication, directory organization, content moderation, a RESTful API, and WebDAV, with a growing range of personalized AI capabilities such as image tag recognition. It is suited to personal image hosting, website asset management, and lightweight file distribution. **[View all features →](https://cfbed.sanyue.de/en/guide/features.html)**
 
 https://github.com/user-attachments/assets/69dae597-0d17-4b7c-9c7b-04ee81bd8219
 
-<details>
-    <summary>Project poster</summary>
+**Architecture at a glance**
 
-![CloudFlare](readme/海报.png)
+![CloudFlare ImgBed architecture: client interfaces, portable service runtimes, database compatibility, unified storage channels, and extensible AI capabilities](readme/architecture.apng)
 
-</details>
+Built on an isomorphic core, the engine runs seamlessly across Pages, Workers, and Docker with adaptive persistence over KV, D1, or SQLite. Metadata and file payloads are strictly decoupled via dedicated adapters, while intelligent channel routing guarantees high availability through load balancing and auto-failover—all augmented by an AI-native workflow framework that brings configurable models, prompts, and structured outputs directly into your file pipeline.
 
 ## 🤝 Partners
 
 <table width="100%">
   <tr>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.cloudflare.com/">Cloudflare</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://edgeone.ai/?from=github">EdgeOne</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.packyapi.ai/register?aff=u0Ka">PackyCode</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh">Hncloud</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC">Svyun</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://linux.do/t/topic/2578561">Linux DO</a></strong>
-    </td>
+    <td align="center" width="16%"><strong><a href="https://www.cloudflare.com/">Cloudflare</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.cloudflare.com/"><img src="readme/partners/cloudflare-logo.png" alt="Cloudflare logo" height="25"></a></td>
+    <td><sub>Provides CDN acceleration and security protection</sub></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://www.cloudflare.com/"><img src="readme/partners/cloudflare-logo.png" alt="Cloudflare logo" height="25"></a></td>
-    <td align="center"><a href="https://edgeone.ai/?from=github"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/edgeone-logo-dark.png"><img src="readme/partners/edgeone-logo.png" alt="EdgeOne logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.packyapi.ai/register?aff=u0Ka"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/packycode-logo-dark.png"><img src="readme/partners/packycode-logo.png" alt="PackyCode logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/hncloud-logo-dark.png"><img src="readme/partners/hncloud-logo.png" alt="HuaNa Cloud logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/svyun-logo-dark.png"><img src="readme/partners/svyun-logo.png" alt="SuWei Cloud logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://linux.do/t/topic/2578561"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/linuxdo-logo.png"><img src="readme/partners/linuxdo-logo-light.png" alt="Linux DO logo" height="25"></picture></a></td>
+    <td align="center" width="16%"><strong><a href="https://edgeone.ai/?from=github">EdgeOne</a></strong></td>
+    <td align="center" width="22%"><a href="https://edgeone.ai/?from=github"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/edgeone-logo-dark.png"><img src="readme/partners/edgeone-logo.png" alt="EdgeOne logo" height="25"></picture></a></td>
+    <td><sub>Provides CDN acceleration and security protection</sub></td>
   </tr>
   <tr>
-    <td align="center"><sub>Provides CDN acceleration and security protection</sub></td>
-    <td align="center"><sub>Provides CDN acceleration and security protection</sub></td>
-    <td align="center"><sub>Provide premium, stable, and budget-friendly LLM APIs. Generate text, images, and code all in one place. Sign up via our link for free credits and exclusive discounts!</sub></td>
-    <td align="center"><sub>Provides stable and high-quality cloud computing resources. Sign up via our link for exclusive discounts!</sub></td>
-    <td align="center"><sub>Provides stable and high-quality cloud computing resources. Sign up via our link for exclusive discounts!</sub></td>
-    <td align="center"><sub>Provides community support</sub></td>
+    <td align="center" width="16%"><strong><a href="https://www.packyapi.ai/register?aff=u0Ka">PackyCode</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.packyapi.ai/register?aff=u0Ka"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/packycode-logo-dark.png"><img src="readme/partners/packycode-logo.png" alt="PackyCode logo" height="25"></picture></a></td>
+    <td><sub>Provide premium, stable, and budget-friendly LLM APIs. Generate text, images, and code all in one place. Sign up via our link for free credits and exclusive discounts!</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh">Hncloud</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/hncloud-logo-dark.png"><img src="readme/partners/hncloud-logo.png" alt="HuaNa Cloud logo" height="25"></picture></a></td>
+    <td><sub>Provides stable and high-quality cloud computing resources. Sign up via our link for exclusive discounts!</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC">Svyun</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/svyun-logo-dark.png"><img src="readme/partners/svyun-logo.png" alt="SuWei Cloud logo" height="25"></picture></a></td>
+    <td><sub>Provides stable and high-quality cloud computing resources. Sign up via our link for exclusive discounts!</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://linux.do/t/topic/2578561">Linux DO</a></strong></td>
+    <td align="center" width="22%"><a href="https://linux.do/t/topic/2578561"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/linuxdo-logo.png"><img src="readme/partners/linuxdo-logo-light.png" alt="Linux DO logo" height="25"></picture></a></td>
+    <td><sub>Provides community support</sub></td>
   </tr>
 </table>
 
@@ -91,7 +79,7 @@ https://github.com/user-attachments/assets/69dae597-0d17-4b7c-9c7b-04ee81bd8219
 
 **Demo Address**: [CloudFlare ImgBed](https://cfbed.1314883.xyz/) · **Access Password**: `cfbed`
 
-![Upload Page](readme/upload.png)
+![CloudFlare ImgBed project poster](readme/海报.png)
 
 <details>
     <summary>Other page screenshots</summary>

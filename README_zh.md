@@ -8,7 +8,7 @@
     </a>
     <p><em>🗂️ 打破图床边界，构建你的专属开源文件托管引擎。</em></p>
     <p>
-        <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README_zh.md">简体中文</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README.md">English</a> &nbsp;·&nbsp; <a href="https://cfbed.sanyue.de">官方网站</a> &nbsp;·&nbsp; <a href="https://t.me/sanyue_club">Telegram 频道</a>
+        <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README_zh.md">简体中文</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/README.md">English</a> &nbsp;·&nbsp; <a href="https://cfbed.sanyue.de">官方网站</a> &nbsp;·&nbsp; <a href="https://t.me/sanyue_club">Telegram 频道</a> &nbsp;·&nbsp; <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/discussions/categories/announcements">公告</a>
     </p>
     <p align="center">
         <a href="https://github.com/MarSeventh/CloudFlare-ImgBed/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MarSeventh/CloudFlare-ImgBed" alt="License" /></a>
@@ -27,62 +27,50 @@
 
 ---
 
-> [!IMPORTANT]
->
-> **遇到问题请务必先查看[公告](https://github.com/MarSeventh/CloudFlare-ImgBed/discussions/categories/announcements)和[Telegram频道](https://t.me/sanyue_club)信息，重要通知和非兼容性更新内容均会在公告中说明！**
-
-
 # 1. 💡 项目介绍
 
 CloudFlare ImgBed 是支持 Docker 与 Serverless 部署的自建图床和文件托管方案，可将 **Telegram**、**Discord**、**Cloudflare R2**、**S3 兼容存储**、**Hugging Face**、**WebDAV** 等渠道统一接入一个管理界面。项目提供文件管理、身份认证、目录组织、内容审核、RESTful API 与 WebDAV，同时也在不断增加 AI 驱动的图片标签识别等个性化能力，适用于个人图床、网站资源管理和轻量文件分发。 **[查看完整功能 →](https://cfbed.sanyue.de/guide/features.html)**
 
 https://github.com/user-attachments/assets/69dae597-0d17-4b7c-9c7b-04ee81bd8219
 
-<details>
-    <summary>项目海报</summary>
+**架构一览**
 
-![CloudFlare](readme/海报.png)
+![CloudFlare ImgBed 技术架构：多端接入、多平台运行时、数据库兼容、统一存储渠道与可扩展 AI 能力](readme/architecture.apng)
 
-</details>
+基于“同构内核 + 插件化底座”架构，单一核心引擎可无缝运行于 Pages、Workers 或 Docker 容器，并灵活挂载 KV、D1 与 SQLite 等多模态存储。系统通过独立适配器实现元数据与文件载荷的彻底解耦；依托智能通道路由提供动态负载均衡与故障无缝兜底；更内置 AI 原生工作流框架，将可配置的模型、Prompt 与结构化输出深度融入文件处理管线。
 
 ## 🤝 合作伙伴
 
 <table width="100%">
   <tr>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.cloudflare.com/">Cloudflare</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://edgeone.ai/?from=github">EdgeOne</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.packyapi.ai/register?aff=u0Ka">PackyCode</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh">华纳云</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC">速维云</a></strong>
-    </td>
-    <td align="center" width="16.67%">
-      <strong><a href="https://linux.do/t/topic/2578561">Linux DO</a></strong>
-    </td>
+    <td align="center" width="16%"><strong><a href="https://www.cloudflare.com/">Cloudflare</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.cloudflare.com/"><img src="readme/partners/cloudflare-logo.png" alt="Cloudflare Logo" height="25"></a></td>
+    <td><sub>提供 CDN 加速及安全防护</sub></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://www.cloudflare.com/"><img src="readme/partners/cloudflare-logo.png" alt="Cloudflare Logo" height="25"></a></td>
-    <td align="center"><a href="https://edgeone.ai/?from=github"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/edgeone-logo-dark.png"><img src="readme/partners/edgeone-logo.png" alt="EdgeOne Logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.packyapi.ai/register?aff=u0Ka"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/packycode-logo-dark.png"><img src="readme/partners/packycode-logo.png" alt="PackyCode Logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/hncloud-logo-dark.png"><img src="readme/partners/hncloud-logo.png" alt="华纳云 Logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/svyun-logo-dark.png"><img src="readme/partners/svyun-logo.png" alt="速维云 Logo" height="25"></picture></a></td>
-    <td align="center"><a href="https://linux.do/t/topic/2578561"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/linuxdo-logo.png"><img src="readme/partners/linuxdo-logo-light.png" alt="Linux DO Logo" height="25"></picture></a></td>
+    <td align="center" width="16%"><strong><a href="https://edgeone.ai/?from=github">EdgeOne</a></strong></td>
+    <td align="center" width="22%"><a href="https://edgeone.ai/?from=github"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/edgeone-logo-dark.png"><img src="readme/partners/edgeone-logo.png" alt="EdgeOne Logo" height="25"></picture></a></td>
+    <td><sub>提供 CDN 加速及安全防护</sub></td>
   </tr>
   <tr>
-    <td align="center"><sub>提供 CDN 加速及安全防护</sub></td>
-    <td align="center"><sub>提供 CDN 加速及安全防护</sub></td>
-    <td align="center"><sub>提供稳定、高性价比的顶级大模型 API 服务，一站搞定文案、图片和代码，通过本项目链接注册立享充值折扣与免费额度！</sub></td>
-    <td align="center"><sub>提供稳定、优质的云计算资源，通过本项目链接注册立享超值优惠！</sub></td>
-    <td align="center"><sub>提供稳定、优质的云计算资源，通过本项目链接注册立享超值优惠！</sub></td>
-    <td align="center"><sub>提供社区支持</sub></td>
+    <td align="center" width="16%"><strong><a href="https://www.packyapi.ai/register?aff=u0Ka">PackyCode</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.packyapi.ai/register?aff=u0Ka"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/packycode-logo-dark.png"><img src="readme/partners/packycode-logo.png" alt="PackyCode Logo" height="25"></picture></a></td>
+    <td><sub>提供稳定、高性价比的顶级大模型 API 服务，一站搞定文案、图片和代码，通过本项目链接注册立享充值折扣与免费额度！</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh">华纳云</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.hncloud.com/activity/activity_2026summer.html?k=MarSeventh"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/hncloud-logo-dark.png"><img src="readme/partners/hncloud-logo.png" alt="华纳云 Logo" height="25"></picture></a></td>
+    <td><sub>提供稳定、优质的云计算资源，通过本项目链接注册立享超值优惠！</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC">速维云</a></strong></td>
+    <td align="center" width="22%"><a href="https://www.svyun.com/recommend/AELZ0UeMz8K11Zg7pEXC"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/svyun-logo-dark.png"><img src="readme/partners/svyun-logo.png" alt="速维云 Logo" height="25"></picture></a></td>
+    <td><sub>提供稳定、优质的云计算资源，通过本项目链接注册立享超值优惠！</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="16%"><strong><a href="https://linux.do/t/topic/2578561">Linux DO</a></strong></td>
+    <td align="center" width="22%"><a href="https://linux.do/t/topic/2578561"><picture><source media="(prefers-color-scheme: dark)" srcset="readme/partners/linuxdo-logo.png"><img src="readme/partners/linuxdo-logo-light.png" alt="Linux DO Logo" height="25"></picture></a></td>
+    <td><sub>提供社区支持</sub></td>
   </tr>
 </table>
 
@@ -93,7 +81,7 @@ https://github.com/user-attachments/assets/69dae597-0d17-4b7c-9c7b-04ee81bd8219
 
 **演示站点**：[CloudFlare ImgBed](https://cfbed.1314883.xyz/) · **访问密码**：`cfbed`
 
-![文件上传页面](readme/upload.png)
+![CloudFlare ImgBed 项目海报](readme/海报.png)
 
 <details>
     <summary>其他页面效果展示</summary>
